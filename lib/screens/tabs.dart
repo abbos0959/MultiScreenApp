@@ -1,11 +1,15 @@
 import 'package:cuberto_bottom_bar/internal/internal.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:screen_app/data/dummy_data.dart';
 import 'package:screen_app/models/meals.dart';
+import 'package:screen_app/providers/favourites_provider.dart';
+import 'package:screen_app/providers/meals_provider.dart';
 import 'package:screen_app/screens/categories.dart';
 import 'package:screen_app/screens/filters.dart';
 import 'package:screen_app/screens/meals.dart';
 import 'package:screen_app/widgets/main_drawer.dart';
+import 'package:screen_app/providers/filters_provider.dart';
 
 const initialfilters = {
   Filter.glutenfree: false,
@@ -14,43 +18,15 @@ const initialfilters = {
   Filter.vegetarian: false
 };
 
-class TabScreen extends StatefulWidget {
+class TabScreen extends ConsumerStatefulWidget {
   const TabScreen({super.key});
 
   @override
-  State<TabScreen> createState() => _TabScreenState();
+  ConsumerState<TabScreen> createState() => _TabScreenState();
 }
 
-class _TabScreenState extends State<TabScreen> {
-  final List<Meal> products = [];
+class _TabScreenState extends ConsumerState<TabScreen> {
   bool ischek = false;
-
-  void _showmessage(String message) {
-    ScaffoldMessenger.of(context).clearSnackBars();
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-      ),
-    );
-  }
-
-  Map<Filter, bool> _selectedfilters = initialfilters;
-
-  void _savedFunctionFavourite(Meal value) {
-    final ischeckingFavourite = products.contains(value);
-
-    setState(() {
-      if (ischeckingFavourite) {
-        products.remove(value);
-        _showmessage(' Sevimlilardan olib tashlandi');
-        ischek = false;
-      } else {
-        products.add(value);
-        _showmessage('sevimlilarga  qo\'shildi');
-        ischek = true;
-      }
-    });
-  }
 
   int _selectedIndex = 0;
 
@@ -64,46 +40,44 @@ class _TabScreenState extends State<TabScreen> {
     Navigator.of(context).pop();
 
     if (value == "filter") {
-      final result = await Navigator.of(context).push<Map<Filter, bool>>(
+      await Navigator.of(context).push<Map<Filter, bool>>(
         MaterialPageRoute(
-          builder: (ctx) => Filters(
-            currenFilter: _selectedfilters,
-          ),
+          builder: (ctx) => const Filters(
+              // currenFilter: _selectedfilters,
+              ),
         ),
       );
-      setState(() {
-        _selectedfilters = result ?? initialfilters;
-      });
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final availableMeals = dummyMeals.where((element) {
-      if (_selectedfilters[Filter.glutenfree]! && !element.isGlutenFree) {
+    final meals = ref.watch(provider);
+    final activeFilter = ref.watch(filterProvider);
+    final availableMeals = meals.where((element) {
+      if (activeFilter[Filter.glutenfree]! && !element.isGlutenFree) {
         return false;
       }
-      if (_selectedfilters[Filter.lactosefree]! && !element.isLactoseFree) {
+      if (activeFilter[Filter.lactosefree]! && !element.isLactoseFree) {
         return false;
       }
-      if (_selectedfilters[Filter.vegan]! && !element.isVegan) {
+      if (activeFilter[Filter.vegan]! && !element.isVegan) {
         return false;
       }
-      if (_selectedfilters[Filter.vegetarian]! && !element.isVegetarian) {
+      if (activeFilter[Filter.vegetarian]! && !element.isVegetarian) {
         return false;
       }
       return true;
     }).toList();
 
-    Widget activePage = CategoriesScreen(
-        ontoglefavourite: _savedFunctionFavourite,
-        availableMeals: availableMeals);
+    Widget activePage = CategoriesScreen(availableMeals: availableMeals);
     String activePageTitle = "Categories";
 
     if (_selectedIndex == 1) {
+      final favouriteMeals = ref.watch(favouriteMealsProvider);
+
       activePage = MealsScreen(
-        meals: products,
-        ontoglefavourite: _savedFunctionFavourite,
+        meals: favouriteMeals,
       );
       activePageTitle = "Sevimlilaringiz";
     }

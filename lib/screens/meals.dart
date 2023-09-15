@@ -3,12 +3,13 @@ import 'package:screen_app/models/meals.dart';
 import 'package:screen_app/widgets/meal_item.dart';
 
 class MealsScreen extends StatelessWidget {
-  const MealsScreen(
-      {super.key,
-      required this.meals,
-      this.title,
-      required this.ontoglefavourite});
-  final void Function(Meal meal) ontoglefavourite;
+  const MealsScreen({
+    super.key,
+    required this.meals,
+    this.title,
+    // required this.ontoglefavourite,
+  });
+  // final void Function(Meal meal) ontoglefavourite;
 
   final String? title;
   final List<Meal> meals;
@@ -44,7 +45,7 @@ class MealsScreen extends StatelessWidget {
       content = ListView.builder(
           itemCount: meals.length,
           itemBuilder: (ctx, index) => MealItem(
-                ontoglefavourite: ontoglefavourite,
+                // ontoglefavourite: ontoglefavourite,
                 meal: meals[index],
               ));
     }

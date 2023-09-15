@@ -1,20 +1,36 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:screen_app/models/meals.dart';
+import 'package:screen_app/providers/favourites_provider.dart';
 
-class MealsDetails extends StatelessWidget {
-  MealsDetails({super.key, required this.meal, required this.ontoglefavourite});
+class MealsDetails extends ConsumerWidget {
+  const MealsDetails({
+    super.key,
+    required this.meal,
+    // required this.ontoglefavourite,
+  });
   final Meal meal;
-  final void Function(Meal meal) ontoglefavourite;
+  // final void Function(Meal meal) ontoglefavourite;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
       appBar: AppBar(
         title: Text(meal.title),
         actions: [
           IconButton(
               onPressed: () {
-                ontoglefavourite(meal);
+                final ischecked = ref
+                    .read(favouriteMealsProvider.notifier)
+                    .toogleMealFavouritetatus(meal);
+                ScaffoldMessenger.of(context).clearSnackBars();
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(ischecked
+                        ? " sevimlilarga qo'shildi"
+                        : " sevimlilardan olib tashlandi"),
+                  ),
+                );
               },
               icon: Icon(Icons.stars))
         ],

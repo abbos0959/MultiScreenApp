@@ -8,20 +8,22 @@ import 'package:screen_app/models/category.dart';
 class CategoriesScreen extends StatelessWidget {
   const CategoriesScreen(
       {super.key,
-      required this.ontoglefavourite,
+      // required this.ontoglefavourite,
       required this.availableMeals});
 
-  final void Function(Meal meal) ontoglefavourite;
+  // final void Function(Meal meal) ontoglefavourite;
   final List<Meal> availableMeals;
   void _selectCategory(BuildContext context, Category categorycha) {
     final data = availableMeals
         .where((element) => element.categories.contains(categorycha.id))
         .toList();
     Navigator.of(context).push(MaterialPageRoute(
-        builder: (ctx) => MealsScreen(
-            meals: data,
-            title: categorycha.title,
-            ontoglefavourite: ontoglefavourite)));
+      builder: (ctx) => MealsScreen(
+        meals: data,
+        title: categorycha.title,
+        // ontoglefavourite: ontoglefavourite),
+      ),
+    ));
   }
 
   @override
